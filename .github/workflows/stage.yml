@@ -1,0 +1,31 @@
+name: "Terraform staging Workflow"
+on:
+  push:
+    branches:
+      - stage
+
+jobs:
+  Testing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4
+        with:
+          ref: stage
+      
+      - name: Terraform init
+        working-directory: terraform
+        run: terraform init
+  
+      - name: Validating files
+        working-directory: terraform
+        run: terraform validate || { echo "Terraform validation failed!"; exit 1; }
+      
+      - name: Check Plan
+        working-directory: terraform
+        run: terraform plan || { echo "Terraform plan failed!"; exit 1; }
+
+      - name: Create Pull Request to main IAC
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr create --base main --head stage --title "Update infrastructure" --body "Modified some tf files"
