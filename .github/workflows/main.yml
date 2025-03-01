@@ -26,9 +26,6 @@ jobs:
       - name: Code checkout
         uses: actions/checkout@v4
 
-      - name: Sync stage branch
-        run: 
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
