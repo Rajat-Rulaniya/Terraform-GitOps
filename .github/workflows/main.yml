@@ -64,7 +64,7 @@ jobs:
       - name: Install Ingress controller 
         if: steps.apply.outcome == 'success' && steps.getconfig.outcome == 'success'
         run: |
-          kubectl get nodes
+          aws sts get-caller-identity
           kubectl apply --validate=false -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0/deploy/static/provider/cloud/deploy.yaml
 
         
