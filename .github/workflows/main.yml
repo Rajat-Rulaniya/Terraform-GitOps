@@ -65,7 +65,7 @@ jobs:
         if: steps.apply.outcome == 'success' && steps.getconfig.outcome == 'success'
         run: |
           aws sts get-caller-identity
-          kubectl get configmap aws-auth -n kube-system -o yaml
+          kubectl get nodes
 
 
         
