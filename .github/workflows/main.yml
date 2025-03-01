@@ -1,8 +1,8 @@
-name: "Terraform staging Workflow"
+name: "Terraform main Workflow"
 on:
   push:
     branches:
-      - stage
+      - main
 
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_USER_ACCESS_ID }}
@@ -10,30 +10,25 @@ env:
   AWS_DEFAULT_REGION: us-east-1
 
 jobs:
-  Testing:
+  DEPLOY:
     runs-on: ubuntu-latest
+
     steps:
       - name: Code checkout
         uses: actions/checkout@v4
-        with:
-          ref: stage
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform init
+      - name: Initialize Terraform
         working-directory: terraform
         run: terraform init
 
-      - name: Validating files
-        working-directory: terraform
-        run: terraform validate
-
-      - name: Check Plan
+      - name: Plan Infrastructure Changes
         working-directory: terraform
         run: terraform plan
 
-      - name: Create Pull Request to main IAC
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh pr create --base main --head stage --title "Update infrastructure" --body "Modified some tf files"
+      # - name: Deploy new Infrastructure
+      #   working-directory: terraform
+      #   run: terraform apply -auto-approve
+
