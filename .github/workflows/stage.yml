@@ -4,19 +4,15 @@ on:
     branches:
       - stage
 
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_USER_ACCESS_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_USER_SECRET_KEY }}
+  AWS_DEFAULT_REGION: us-east-1
+
 jobs:
   Testing:
     runs-on: ubuntu-latest
     steps:
-
-      - name: Configure AWS Credentials
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_USER_ACCESS_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_USER_SECRET_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
-        run: echo "AWS credentials configured"
-
-
       - name: Code checkout
         uses: actions/checkout@v4
         with:
@@ -24,15 +20,15 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
-    
+
       - name: Terraform init
         working-directory: terraform
         run: terraform init
-  
+
       - name: Validating files
         working-directory: terraform
         run: terraform validate || { echo "Terraform validation failed!"; exit 1; }
-      
+
       - name: Check Plan
         working-directory: terraform
         run: terraform plan || { echo "Terraform plan failed!"; exit 1; }
