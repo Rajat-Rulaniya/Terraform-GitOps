@@ -1,0 +1,53 @@
+name: Terraform Workflow
+on:
+  push:
+    branches:
+      - main
+      - stage
+    paths:
+      - terraform/**
+  
+  pull_request:
+    branches:
+      - main
+    paths:
+      - terraform/**
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_USER_ACCESS_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_USER_SECRET_KEY }}
+  AWS_DEFAULT_REGION: us-east-1
+  BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE }}
+  EKS_CLUSTER: vprofile-eks
+
+jobs:
+  terraform:
+    name: Apply terraform changes
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./terraform
+
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform init 
+        run: terraform init -backend-config="bucket=$BUCKET_TF_STATE" # Overrides the pre written bucket name in tarraform.tf file
+
+      - name: Validating files
+        run: terraform validate
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color -input=false -out planfile
+        continue-on-error: true
+      
+      - name: Check plan status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
