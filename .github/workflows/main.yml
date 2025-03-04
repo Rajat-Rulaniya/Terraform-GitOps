@@ -63,7 +63,6 @@ jobs:
           sudo apt install snapd
           sudo snap install kubectl --classic
           kubectl version --client
-          cat ~/.kube/config
 
       - name: Get Kube config file # Updates our local kube config file to connect with the eks cluster
         id: getconfig
