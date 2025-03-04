@@ -55,6 +55,14 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_USER_ACCESS_ID }}
           aws-secret-access-key: ${{ secrets.AWS_USER_SECRET_KEY }}
           aws-region: ${{ env.AWS_DEFAULT_REGION }}
+      
+      - name: Install Kubectl
+        run: |
+          sudo apt update
+          sudo apt install snapd
+          sudo snap install kubectl --classic
+          kubectl version --client
+          cat ~/.kube/config
 
       - name: Get Kube config file # Updates our local kube config file to connect with the eks cluster
         id: getconfig
@@ -64,8 +72,12 @@ jobs:
       - name: Install Ingress controller 
         if: steps.apply.outcome == 'success' && steps.getconfig.outcome == 'success'
         run: |
-          aws sts get-caller-identity
+          eksctl create iamidentitymapping --cluster ${{ env.EKS_CLUSTER }} --region ${{ env.AWS_DEFAULT_REGION }} \
+          --arn arn:aws:iam::985539789856:user/gitOps-User --group system:masters --username admin
+          sleep 20
           kubectl get nodes
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0/deploy/static/provider/cloud/deploy.yaml
+
 
 
         
