@@ -63,6 +63,8 @@ jobs:
           sudo apt install snapd
           sudo snap install kubectl --classic
           kubectl version --client
+          curl -sSL "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+          sudo mv /tmp/eksctl /usr/local/bin
 
       - name: Get Kube config file # Updates our local kube config file to connect with the eks cluster
         id: getconfig
