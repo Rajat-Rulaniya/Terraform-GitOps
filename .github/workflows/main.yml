@@ -66,21 +66,6 @@ jobs:
           curl -sSL "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
           sudo mv /tmp/eksctl /usr/local/bin
 
-      - name: Add IAM user to EKS
-        run: |
-          eksctl create accessentry \
-          --cluster ${{ env.EKS_CLUSTER }} \
-          --region ${{ env.AWS_DEFAULT_REGION }} \
-          --principal-arn ${{ secrets.USER_ARN }} \
-
-          aws eks associate-access-policy \
-          --cluster-name ${{ env.EKS_CLUSTER }} \
-          --principal-arn ${{ secrets.USER_ARN }} \
-          --region ${{ env.AWS_DEFAULT_REGION }} \
-          --access-scope type=cluster \
-          --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy
-
-
       - name: Get Kube config file # Updates our local kube config file to connect with the eks cluster
         id: getconfig
         if: steps.apply.outcome == 'success'
